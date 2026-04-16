@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitter Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-title">Twitter</span>
+      <span class="logo-sub">Dashboard</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section-label">ANALYTICS</div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-link active" data-view="summary" onclick="switchView('summary',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Summary
+    </a>
+    <a class="nav-link" data-view="influencers" onclick="switchView('influencers',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Influencers
+    </a>
+    <a class="nav-link" data-view="hashtags" onclick="switchView('hashtags',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+      Hashtags
+    </a>
+    <a class="nav-link" data-view="geography" onclick="switchView('geography',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      Geography
+    </a>
+    <a class="nav-link" data-view="feed" onclick="switchView('feed',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5" fill="currentColor"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="3" cy="18" r="1.5" fill="currentColor"/></svg>
+      Tweet Feed
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="data-badge">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span id="sidebarPostCount">—</span> posts loaded
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div>
+        <h1 class="topbar-title">Twitter Analysis</h1>
+        <p class="topbar-sub">Excel-based demo dataset · 500 posts</p>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="date-group">
+        <label>From</label>
+        <input type="date" id="startDate" />
+        <label>To</label>
+        <input type="date" id="endDate" />
+        <button class="btn-filter" onclick="applyFilter()">Filter</button>
+        <button class="btn-clear" onclick="clearFilter()">×</button>
+      </div>
+
+      <div class="seg-btns">
+        <button class="seg active" id="seg-mentions" onclick="activateSeg(this,'mentions')">Mentions</button>
+        <button class="seg" id="seg-influencers" onclick="activateSeg(this,'influencers')">Influencers</button>
+        <button class="seg" id="seg-impact" onclick="activateSeg(this,'impact')">Impact</button>
+      </div>
+
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search posts…" onkeydown="if(event.key==='Enter')quickSearch()" />
+      </div>
+
+      <button class="btn-refresh" onclick="refreshAll()" title="Refresh">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- VIEWS -->
+  <div class="content" id="appContent">
+
+    <!-- ═══════ SUMMARY ═══════ -->
+    <div class="view active" id="view-summary">
+
+      <div class="kpi-row" id="kpiRow">
+        <div class="kpi" data-c="cyan">
+          <div class="kpi-hd">
+            <span class="kpi-lbl">Total Posts</span>
+            <svg class="kpi-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="kpi-val" id="kv-posts">—</div>
+          <div class="kpi-meta" id="km-posts"></div>
+        </div>
+        <div class="kpi" data-c="pink">
+          <div class="kpi-hd">
+            <span class="kpi-lbl">Total Likes</span>
+            <svg class="kpi-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <div class="kpi-val" id="kv-likes">—</div>
+          <div class="kpi-meta" id="km-likes"></div>
+        </div>
+        <div class="kpi" data-c="green">
+          <div class="kpi-hd">
+            <span class="kpi-lbl">Total Boosts</span>
+            <svg class="kpi-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+          </div>
+          <div class="kpi-val" id="kv-boosts">—</div>
+          <div class="kpi-meta" id="km-boosts"></div>
+        </div>
+        <div class="kpi" data-c="amber">
+          <div class="kpi-hd">
+            <span class="kpi-lbl">Sentiment Score</span>
+            <svg class="kpi-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div class="kpi-val" id="kv-sentiment">—</div>
+          <div class="kpi-meta" id="km-sentiment"></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-box span2">
+          <div class="chart-box-hd">
+            <h3>Posts Over Time</h3>
+            <div class="chart-legend" id="timelineLegend"></div>
+          </div>
+          <div class="chart-area" style="height:230px">
+            <canvas id="timelineChart"></canvas>
+            <div class="overlay" id="ov-timeline"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-hd"><h3>Sentiment Split</h3></div>
+          <div class="chart-area" style="height:230px">
+            <canvas id="sentimentChart"></canvas>
+            <div class="overlay" id="ov-sentiment"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-box span2">
+          <div class="chart-box-hd"><h3>Sentiment Over Time</h3></div>
+          <div class="chart-area" style="height:200px">
+            <canvas id="sentimentTimeChart"></canvas>
+            <div class="overlay" id="ov-stc"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-hd"><h3>Top Hashtags (Quick)</h3></div>
+          <div class="chart-area" style="height:200px">
+            <canvas id="tagMiniChart"></canvas>
+            <div class="overlay" id="ov-tagmini"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-summary -->
+
+    <!-- ═══════ INFLUENCERS ═══════ -->
+    <div class="view" id="view-influencers">
+
+      <div class="chart-row">
+        <div class="chart-box span3">
+          <div class="chart-box-hd">
+            <h3>Influencer Map</h3>
+            <span class="chart-hint">X: mentions · Y: followers · bubble: engagement</span>
+          </div>
+          <div class="chart-area" style="height:280px">
+            <canvas id="scatterChart"></canvas>
+            <div class="overlay" id="ov-scatter"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <h3>Top Influencers</h3>
+          <input class="mini-search" type="text" placeholder="Filter by name/location…" oninput="filterInflTable(this.value)" />
+        </div>
+        <div class="tbl-wrap">
+          <table class="dtbl" id="inflTable">
+            <thead><tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Location</th>
+              <th class="s" onclick="sortInfl('mentions')">Mentions ↕</th>
+              <th class="s" onclick="sortInfl('followers')">Followers ↕</th>
+              <th class="s" onclick="sortInfl('engagement')">Engagement ↕</th>
+              <th class="s" onclick="sortInfl('impact')">Impact ↕</th>
+            </tr></thead>
+            <tbody id="inflBody"><tr><td colspan="7" class="tc"><div class="spin"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /view-influencers -->
+
+    <!-- ═══════ HASHTAGS ═══════ -->
+    <div class="view" id="view-hashtags">
+
+      <div class="chart-row">
+        <div class="chart-box span2">
+          <div class="chart-box-hd"><h3>Hashtag Frequency</h3></div>
+          <div class="chart-area" style="height:300px">
+            <canvas id="hashChart"></canvas>
+            <div class="overlay" id="ov-hash"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-hd"><h3>Engagement per Tag</h3></div>
+          <div class="chart-area" style="height:300px">
+            <canvas id="hashEngChart"></canvas>
+            <div class="overlay" id="ov-hashe"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><h3>All Hashtags</h3></div>
+        <div id="tagCloud" class="tag-cloud"></div>
+      </div>
+
+    </div>
+
+    <!-- ═══════ GEOGRAPHY ═══════ -->
+    <div class="view" id="view-geography">
+      <div class="chart-row">
+        <div class="chart-box span2">
+          <div class="chart-box-hd"><h3>Posts by City</h3></div>
+          <div class="chart-area" style="height:320px">
+            <canvas id="geoChart"></canvas>
+            <div class="overlay" id="ov-geo"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-hd"><h3>Top Locations</h3></div>
+          <div id="geoList" class="geo-list"><div class="spin" style="margin:2rem auto"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ FEED ═══════ -->
+    <div class="view" id="view-feed">
+
+      <div class="filter-bar panel">
+        <input type="text" id="feedKw" placeholder="Keyword…" class="f-input" />
+        <input type="text" id="feedTag" placeholder="#hashtag" class="f-input" />
+        <select id="feedSentiment" class="f-select">
+          <option value="">All Sentiments</option>
+          <option value="positive">😊 Positive</option>
+          <option value="neutral">😐 Neutral</option>
+          <option value="negative">😞 Negative</option>
+        </select>
+        <button class="btn-filter" onclick="searchFeed()">Search</button>
+        <button class="btn-clear" onclick="resetFeed()">Clear</button>
+        <span id="feedTotal" class="feed-count"></span>
+      </div>
+
+      <div class="panel">
+        <div class="tbl-wrap">
+          <table class="dtbl" id="feedTable">
+            <thead><tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Content</th>
+              <th>Likes</th>
+              <th>Boosts</th>
+              <th>Engagement</th>
+              <th>Sentiment</th>
+            </tr></thead>
+            <tbody id="feedBody"><tr><td colspan="7" class="tc"><div class="spin"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="tbl-footer">
+          <span id="feedShowing">Showing — posts</span>
+          <button class="btn-more" id="btnMore" onclick="loadMoreFeed()">Load More</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /appContent -->
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div id="toasts"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
